@@ -136,22 +136,31 @@ def labelbox_to_json(labeled_data, coco_output, images_output_dir):
                         }
                         coco['categories'].append(category)
 
-                    # Get the binary mask name
-                    try:
-                        response = requests.get(mask['instanceURI'], stream=True)
-                    except requests.exceptions.MissingSchema as e:
-                        logging.exception(('"Labeled Data" field must be a URL. '
-                                'Support for local files coming soon'))
-                        continue
-                    except requests.exceptions.ConnectionError as e:
-                        logging.exception('Failed to fetch image from {}'
-                                .format(mask['instanceURI']))
-                        continue
-                    
-                    response.raw.decode_content = True
 
-                    # Open the binary mask (it is just a png image with 1 and 0)
-                    im = Image.open(response.raw)
+                    def get_im():
+                        # Get the binary mask name
+                        try:
+                            response = requests.get(mask['instanceURI'], stream=True)
+                        except requests.exceptions.MissingSchema as e:
+                            logging.exception(('"Labeled Data" field must be a URL. '
+                                    'Support for local files coming soon'))
+                            return None
+                        except requests.exceptions.ConnectionError as e:
+                            logging.exception('Failed to fetch image from {}'
+                                    .format(mask['instanceURI']))
+                            return None
+                        
+                        response.raw.decode_content = True
+
+                        # Open the binary mask (it is just a png image with 1 and 0)
+                        return Image.open(response.raw)
+
+                    try:
+                        im=get_im()
+                    except:
+                        im=get_im() # retry if it fails the first time--this solves a pretty annoying issue with finnicky image downloads
+
+                    if im is None: continue
 
                     # Transform to numpy array, as numpy reads columns and rows differently we need to reshape the array
                     im_np = np.array(im)
