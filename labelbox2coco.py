@@ -14,7 +14,7 @@ import shapely
 
 import time
 
-def labelbox_to_json(labeled_data, coco_output, images_output_dir):
+def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None):
     
     """
     Converts from labelbox json export format to COCO json
@@ -138,7 +138,8 @@ def labelbox_to_json(labeled_data, coco_output, images_output_dir):
                         category_id = [c['id'] for c in coco['categories'] if c['supercategory'] == mask['value']][0]
                     # If it doesnt, create it
                     except IndexError:
-                        category_id = len(coco['categories']) + 1
+                        category_id = len(coco['categories']) + 1 if cat_order is None else ( cat_order.index(mask['value'])+1 if mask['value'] in cat_order else None )
+                        if category_id is None: raise ValueError("category order provided does not contain id '"+mask['value']+"'")
                         category = {
                             'supercategory': mask['value'],
                             'id': category_id,
