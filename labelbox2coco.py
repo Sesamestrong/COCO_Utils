@@ -12,6 +12,7 @@ import numpy as np
 import rasterio
 import shapely
 
+import time
 
 def labelbox_to_json(labeled_data, coco_output, images_output_dir):
     
@@ -56,22 +57,31 @@ def labelbox_to_json(labeled_data, coco_output, images_output_dir):
     # Go though each labelled image
 
     for data in label_data:
-        # Download and get image name
-        try:
-            response = requests.get(data['Labeled Data'], stream=True)
-        except requests.exceptions.MissingSchema as e:
-            logging.exception(('"Labeled Data" field must be a URL. '
-                              'Support for local files coming soon'))
-            continue
-        except requests.exceptions.ConnectionError as e:
-            logging.exception('Failed to fetch image from {}'
-                              .format(data['Labeled Data']))
-            continue
+        im=None
+        for i in range(3):
+            try:
+                # Download and get image name
+                try:
+                    response = requests.get(data['Labeled Data'], stream=True)
+                except requests.exceptions.MissingSchema as e:
+                    logging.exception(('"Labeled Data" field must be a URL. '
+                                      'Support for local files coming soon'))
+                    continue
+                except requests.exceptions.ConnectionError as e:
+                    logging.exception('Failed to fetch image from {}'
+                                      .format(data['Labeled Data']))
+                    continue
 
-        response.raw.decode_content = True
+                response.raw.decode_content = True
 
-        # Open image and get image size
-        im = Image.open(response.raw)
+                # Open image and get image size
+                im = Image.open(response.raw)
+                break
+            except:
+                time.sleep(0.5)
+                continue
+
+        if im is None: continue
         width, height = im.size
 
         # Create an id using consecutive numbers
