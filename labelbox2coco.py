@@ -14,6 +14,8 @@ import shapely
 
 import time
 
+import tqdm
+
 def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None):
     
     """
@@ -56,7 +58,7 @@ def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None
 
     # Go though each labelled image
 
-    for data in label_data:
+    for data in tqdm(label_data):
         im=None
         for i in range(3):
             try:
@@ -210,6 +212,8 @@ def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None
                     }
 
                     coco['annotations'].append(annotation)
+
+    coco['categories'].sort(key=lambda b:b['id'])
 
     # Write the coco json file
     with open(coco_output, 'w+') as f:
