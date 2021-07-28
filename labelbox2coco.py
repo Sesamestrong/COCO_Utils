@@ -16,7 +16,7 @@ import time
 
 from tqdm import tqdm
 
-def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None):
+def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None,verbose=False):
     
     """
     Converts from labelbox json export format to COCO json
@@ -90,7 +90,7 @@ def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None
         image_id = len(coco['images']) + 1
 
         # Print status
-        print('###### Processing ' + data['ID'] + ' image, ' + 'Image ' + str(count) + ' of ' +  str(len(label_data)))
+        if verbose: print('###### Processing ' + data['ID'] + ' image, ' + 'Image ' + str(count) + ' of ' +  str(len(label_data)))
         count = count + 1
 
         # Write image in png format, is will have the ID as name (e.g. 23.png)
@@ -100,7 +100,7 @@ def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None
 
         # Include only images with annotations
         if not ('objects' in data['Label']):
-            print("Image without annotations")
+            if verbose: print("Image without annotations")
         else:
 
             # build the file name name (path), ID, dimensions
@@ -132,7 +132,7 @@ def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None
 
                 for mask in binary_masks:
 
-                    print('processing ' + mask['value'] + ' instance. Instance ' + str(count2) + ' of ' + str(len(binary_masks)))
+                    if verbose: print('processing ' + mask['value'] + ' instance. Instance ' + str(count2) + ' of ' + str(len(binary_masks)))
                     count2 = count2+ 1
 
                     try:
@@ -181,7 +181,7 @@ def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None
 
                     # Transform the masks to a listo of polygons
                     all_polygons = mask_to_polygons_layer(im_np)
-                    print('Instance consisting in ' + str(len(all_polygons)) + ' polygon')
+                    if verbose: print('Instance consisting in ' + str(len(all_polygons)) + ' polygon')
 
                     all_segmentation = []
 
@@ -214,12 +214,12 @@ def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None
                     coco['annotations'].append(annotation)
 
     coco['categories']=sorted(coco['categories'],key=lambda b:b['id'])
-    print(coco['categories'])
+    if verbose: print(coco['categories'])
 
     # Write the coco json file
     with open(coco_output, 'w+') as f:
         f.write(json.dumps(coco))
-        print("Image preprocessing ready")
+        if verbose: print("Image preprocessing ready")
 
 # 
 def mask_to_polygons_layer(mask):
