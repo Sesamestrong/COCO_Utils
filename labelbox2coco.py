@@ -14,7 +14,7 @@ import shapely
 
 import time
 
-import tqdm
+from tqdm import tqdm
 
 def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None):
     
