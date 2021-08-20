@@ -36,7 +36,7 @@ def lb_to_json(labeled_file,coco_file,image_dir,cat_order=[]):
             cat_list.append(name)
         return cat_list.index(name)+1
 
-    for row in tqdm(labelbox):
+    for data in tqdm(labelbox):
         img_filename=data['External ID']
 
         if img_filename in used_images: continue
