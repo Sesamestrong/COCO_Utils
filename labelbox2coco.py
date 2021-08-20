@@ -183,7 +183,9 @@ def labelbox_to_json(labeled_data, coco_output, images_output_dir,cat_order=None
                     except:
                         im=get_im() # retry if it fails the first time--this solves a pretty annoying issue with finnicky image downloads
 
-                    if im is None: continue
+                    if im is None:
+                        print("could not get binary mask")
+                        continue
 
                     # Transform to numpy array, as numpy reads columns and rows differently we need to reshape the array
                     im_np = np.array(im)
