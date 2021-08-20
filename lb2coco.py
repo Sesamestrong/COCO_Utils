@@ -21,8 +21,8 @@ def lb_to_json(labeled_file,coco_file,image_dir,cat_order=[]):
     coco['info'] = {
         'year': dt.datetime.now(dt.timezone.utc).year,
         'version': None,
-        'description': label_data[0]['Project Name'],
-        'contributor': label_data[0]['Created By'],
+        'description': labelbox[0]['Project Name'],
+        'contributor': labelbox[0]['Created By'],
         'url': 'labelbox.com',
         'date_created': dt.datetime.now(dt.timezone.utc).isoformat()
     }
