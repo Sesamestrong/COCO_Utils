@@ -4,6 +4,7 @@ import os
 from PIL import Image
 import requests
 import re
+from io import BytesIO
 
 from tqdm import tqdm
 
@@ -48,9 +49,10 @@ def lb_to_json(labeled_file,coco_file,image_dir,cat_order=[]):
         else:
             resp=requests.get(data['Labeled Data'],stream=True)
             resp.raw.decode_content=True
-            buf=resp.raw
+            buf=resp.content
             with open(path,'wb') as f:
                 f.write(buf)
+            buf=BytesIO(buf)
         
         img=Image.open(buf)
 
@@ -58,7 +60,7 @@ def lb_to_json(labeled_file,coco_file,image_dir,cat_order=[]):
 
         width,height=img.size
 
-        date=int(re.search("\\d+",img_filename).match)
+        date=int(re.search("\\d+",img_filename).group())
 
         coco_image={
             'id':date,
@@ -67,7 +69,7 @@ def lb_to_json(labeled_file,coco_file,image_dir,cat_order=[]):
             'file_name':img_filename,
             'license':None,
             'coco_url':data['Labeled Data'],
-            'date_captured':int(re.search("\\d+",img_filename).match)
+            'date_captured':date
         }
         coco['images'].append(coco_image)
 
@@ -88,10 +90,10 @@ def lb_to_json(labeled_file,coco_file,image_dir,cat_order=[]):
                         "category_id":cat_id,
                         "image_id":date,
                         "id":len(coco["annotations"])+1,
-                        "segmentation":segm
+                        "segmentation":[segm]
                     }
-                    annotations.append(annot)
-    coco["annotations"]=[{
+                    coco["annotations"].append(annot)
+    coco["categories"]=[{
         "id":get_cat_id(cat),
         "name":cat,
         "supercategory":cat
