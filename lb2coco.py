@@ -5,6 +5,8 @@ from PIL import Image
 import requests
 import re
 
+from tqdm import tqdm
+
 def lb_to_json(labeled_file,coco_file,image_dir,cat_order=[]):
     with open(labeled_file,'r') as f:
         labelbox=json.loads(f.read())
@@ -34,7 +36,7 @@ def lb_to_json(labeled_file,coco_file,image_dir,cat_order=[]):
             cat_list.append(name)
         return cat_list.index(name)+1
 
-    for row in labelbox:
+    for row in tqdm(labelbox):
         img_filename=data['External ID']
 
         if img_filename in used_images: continue
